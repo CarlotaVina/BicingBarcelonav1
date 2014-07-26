@@ -58,7 +58,11 @@ import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.fs.Path;
 
 
-
+/**********************************************************************************************************
+ * 
+ * @author cloudera
+ *Clase para copiar de hdfs a csv fichero de fechas
+ **********************************************************************************************************/
 
 public class FechasBikes {
 
@@ -101,31 +105,21 @@ public class FechasBikes {
 			e.printStackTrace();
 		}
 
-
 		FileStatus [] dir = hdfs.listStatus(path);
 
 		for (FileStatus fileStatus : dir)  {
-
-
-
 			String s  = fileStatus.getPath().getName();
-
 			if (s.contains("part-m-00000")) {
-
 				FSDataInputStream in = hdfs.open(fileStatus.getPath());
 				f = new File(filePathDirectory);
-
 				cabecera = "0";
 				nuevoFichero = "0";
-
 				if (!f.exists()){
-
 					f.createNewFile();
 					cabecera = "1";
 					nuevoFichero ="1";
 					tituloscabecera="\n";
 				}
-
 				if (nuevoFichero.equals("1")) {
 					bw = new BufferedWriter(new FileWriter(filePathDirectory));
 					bw.write(tituloscabecera);
@@ -133,53 +127,32 @@ public class FechasBikes {
 					bw.flush();
 				}
 				else {
-
 					bw = new BufferedWriter(new FileWriter(filePathDirectory,true));
 				}
-
 				byte[] buffer = new byte[1024];
-
 				in.read(buffer);
 				in.seek(0);
-
 				List<String> lines = IOUtils.readLines(in);
 				try{
 					for (String cadena :lines){
-						System.out.println("cadena "+cadena);
-						
-						data = cadena;
+							data = cadena;
 							bw.write(data);
-
 							bw.newLine();
-
 							bw.flush();
-
-
 						}
-
-
-
 					}
-
-
 				catch (IOException ioe) {
-
 					ioe.printStackTrace();
 				}  finally {
 					if (bw != null) try {
 						bw.close();
-
 					} catch (IOException ioe2){
-
 						ioe2.printStackTrace();
 					}
-
 				}	
 			}
 		}
 	}
-
-
 	public static void main(String[] args) {
 
 		FechasBikes db= new FechasBikes();

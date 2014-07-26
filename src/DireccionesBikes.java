@@ -1,7 +1,5 @@
 package bicing.pig;
 
-
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -20,7 +18,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
-
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -57,95 +54,78 @@ import org.apache.hadoop.util.Progressable;
 
 import org.apache.hadoop.fs.Path;
 
-
-
+/********************************************************************************************************
+ * 
+ * @author cloudera Clase para copiar de hdfs a csv
+ **********************************************************************************************************/
 
 public class DireccionesBikes {
 
 	StringBuilder responseBuilder = new StringBuilder();
 
-	//String csvFile = "/home/cloudera/proyecto/nodejs/node-v0.10.17/node_modules/ejemplos/static/bicisdirecciones1.csv";
-	//public static final String pathTabla = "hdfs:///localhost.localdomain:8020/user/cloudera/direccionbikes.out/part-m-00000";
+	// String csvFile =
+	// "/home/cloudera/proyecto/nodejs/node-v0.10.17/node_modules/ejemplos/static/bicisdirecciones1.csv";
+	// public static final String pathTabla =
+	// "hdfs:///localhost.localdomain:8020/user/cloudera/direccionbikes.out/part-m-00000";
 	String csvFile = "bicisdirecciones1.csv";
 	public static final String pathTabla = "direccionbikes.out/part-m-00000";
 
-
-	private void  direccionesBikes() throws IOException 
-	{
+	private void direccionesBikes() throws IOException {
 		File f;
 		Properties props = new Properties();
-		props.setProperty("fs.default.name","hdfs://localhost.localdomain:8020");
-		props.setProperty("mapred.job.tracker","localhost.localdomain:8021");
+		props.setProperty("fs.default.name",
+				"hdfs://localhost.localdomain:8020");
+		props.setProperty("mapred.job.tracker", "localhost.localdomain:8021");
 		String cabecera = "0";
 		String tituloscabecera = null;
 		String nuevoFichero = "0";
 		BufferedWriter bw = null;
 		String data = null;
 
-		//String filePathDirectory="/home/cloudera/proyecto/nodejs/node-v0.10.17/node_modules/ejemplos/static/bicisdirecciones1.csv";
-		//String filePathDirectory="/home/cloudera/proyecto/nodejs/node-v0.10.17/node_modules/ejemplos/static/bicisdirecciones1.csv";
-		//String filePathDirectory1="hdfs://localhost.localdomain:8020/user/cloudera/direccionbikes.out";
-		String filePathDirectory="static/bicisdirecciones1.csv";
-		String filePathDirectory1="direccionbikes.out";
+		// String
+		// filePathDirectory="/home/cloudera/proyecto/nodejs/node-v0.10.17/node_modules/ejemplos/static/bicisdirecciones1.csv";
+		// String
+		// filePathDirectory="/home/cloudera/proyecto/nodejs/node-v0.10.17/node_modules/ejemplos/static/bicisdirecciones1.csv";
+		// String
+		// filePathDirectory1="hdfs://localhost.localdomain:8020/user/cloudera/direccionbikes.out";
+		String filePathDirectory = "static/bicisdirecciones1.csv";
+		String filePathDirectory1 = "direccionbikes.out";
 		BufferedWriter bufferWritter = null;
-		Path path=new Path(filePathDirectory1);
-
+		Path path = new Path(filePathDirectory1);
 
 		Configuration conf = new Configuration();
-		conf.addResource(new Path("/etc/hadoop/conf.cloudera.hdfs1/core-site.xml"));
+		conf.addResource(new Path(
+				"/etc/hadoop/conf.cloudera.hdfs1/core-site.xml"));
 
 		FileSystem hdfs = null;
 		try {
 			hdfs = FileSystem.get(conf);
-			System.out.println("estoy grabando en el directorio "+hdfs.getHomeDirectory());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-
-		FileStatus [] dir = hdfs.listStatus(path);
-
-		for (FileStatus fileStatus : dir)  {
-
-
-
-			String s  = fileStatus.getPath().getName();
-
+		FileStatus[] dir = hdfs.listStatus(path);
+		for (FileStatus fileStatus : dir) {
+			String s = fileStatus.getPath().getName();
 			if (s.contains("part-m-00000")) {
-				System.out.println(" hdfs.getHomeDirectory() "+  hdfs.getHomeDirectory());
-			
-				System.out.println("grabando en fileStatus "+fileStatus.getPath()+" filePathDirectory "+filePathDirectory);
-
 				FSDataInputStream in = hdfs.open(fileStatus.getPath());
 				f = new File(filePathDirectory);
-
 				cabecera = "0";
 				nuevoFichero = "0";
-
-				System.out.println("antes de comprobar si existe ");
-				if (!f.exists()){
-
-					System.out.println("no existe");
+				if (!f.exists()) {
 					f.createNewFile();
 					cabecera = "1";
-					nuevoFichero ="1";
-					tituloscabecera = "date"+","+"value";
+					nuevoFichero = "1";
+					tituloscabecera = "date" + "," + "value";
 				}
-
 				if (nuevoFichero.equals("1")) {
-					System.out.println("escribiendo  cabecera nuevo fichero "+nuevoFichero);
 					bw = new BufferedWriter(new FileWriter(filePathDirectory));
 					bw.write(tituloscabecera);
 					bw.newLine();
 					bw.flush();
-			     
-				 System.out.println("nuevo fichero "+nuevoFichero);
-				}
-				else {
-					System.out.println("no es nuevo fichero abriendo para anadir ");
-				
-					bw = new BufferedWriter(new FileWriter(filePathDirectory,true));
+				} else {
+					bw = new BufferedWriter(new FileWriter(filePathDirectory,
+							true));
 				}
 				byte[] buffer = new byte[1024];
 
@@ -153,80 +133,56 @@ public class DireccionesBikes {
 				in.seek(0);
 
 				List<String> lines = IOUtils.readLines(in);
-				try{
-					for (String cadena :lines){
-						System.out.println("dentro de bucle "+cadena);
+				try {
+					for (String cadena : lines) {
 						String[] valores = cadena.split(" ");
-						int  len = cadena.length();
+						int len = cadena.length();
 						String[] temp = null;
 						temp = cadena.split(" ");
 						int numeroelemento = 1;
-						String  fecha="";
-						String numerobicis="";
-						for(int i=0;i<len;i++) {
+						String fecha = "";
+						String numerobicis = "";
+						for (int i = 0; i < len; i++) {
 							char c1 = cadena.charAt(i);
 							int c2 = Character.getNumericValue(c1);
-							if (c2==-1) {
+							if (c2 == -1) {
 								numeroelemento = numeroelemento + 1;
-							}    
-							if (numeroelemento==1) {
-								fecha = fecha+c1;
 							}
-							if (numeroelemento==2) {
-								numerobicis = numerobicis+c1;
+							if (numeroelemento == 1) {
+								fecha = fecha + c1;
+							}
+							if (numeroelemento == 2) {
+								numerobicis = numerobicis + c1;
 								numerobicis = numerobicis.trim();
 							}
-						}   
-
-						data = fecha+","+numerobicis;
-
-						
-                        
-						
-							//System.out.println("escribiendo data nuevo fichero data "+data);
-							//bw.write(data);
-
-							//bw.newLine();
-
-							//bw.flush();
-						
-							
-
-							bw.write(data);
-
-							bw.newLine();
-
-							bw.flush();
-
-
 						}
 
-
-
+						data = fecha + "," + numerobicis;
+						bw.write(data);
+						bw.newLine();
+						bw.flush();
 					}
-
-
-				catch (IOException ioe) {
+				} catch (IOException ioe) {
 
 					ioe.printStackTrace();
-				}  finally {
-					if (bw != null) try {
-						bw.close();
+				} finally {
+					if (bw != null)
+						try {
+							bw.close();
 
-					} catch (IOException ioe2){
+						} catch (IOException ioe2) {
 
-						ioe2.printStackTrace();
-					}
+							ioe2.printStackTrace();
+						}
 
-				}	
+				}
 			}
 		}
 	}
 
-
 	public static void main(String[] args) {
 
-		DireccionesBikes db= new DireccionesBikes();
+		DireccionesBikes db = new DireccionesBikes();
 		try {
 			db.direccionesBikes();
 		} catch (IOException e) {
@@ -234,9 +190,6 @@ public class DireccionesBikes {
 			e.printStackTrace();
 		}
 
-	}	                        
+	}
 
 }
-
-
-
